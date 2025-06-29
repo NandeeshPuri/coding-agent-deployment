@@ -47,4 +47,6 @@ Open [http://localhost:6080](http://localhost:6080) for the noVNC interface.
 ## Security & Scalability
 - Each job runs in an isolated container (can be extended to Firecracker VMs).
 - Context is managed on disk and pruned for large tasks.
-- Orchestration layer is stateless and horizontally scalable. 
+- Orchestration layer is stateless and horizontally scalable.
+
+# (Paste the contents of orchestrator/README.md here) 
