@@ -23,6 +23,12 @@ def root():
             .endpoints { margin-top: 2em; }
             .endpoint { background: #f1f5f9; border-radius: 8px; padding: 12px 18px; margin-bottom: 10px; }
             .endpoint span { font-family: monospace; color: #2563eb; }
+            form { margin-top: 2em; }
+            label { font-weight: 600; }
+            input[type="text"], textarea { width: 100%; padding: 10px; margin: 8px 0 16px 0; border-radius: 6px; border: 1px solid #d1d5db; font-size: 1rem; }
+            button { background: #3b82f6; color: #fff; border: none; padding: 10px 22px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+            button:hover { background: #2563eb; }
+            .result, .status-result { background: #f1f5f9; border-radius: 8px; padding: 12px 18px; margin-top: 12px; font-family: monospace; }
         </style>
     </head>
     <body>
@@ -34,7 +40,59 @@ def root():
                 <div class="endpoint"><b>POST</b> <span>/schedule</span> <br> <small>Body: {'{"task": "your task here"}'}</small></div>
                 <div class="endpoint"><b>GET</b> <span>/status/&#123;job_id&#125;</span></div>
             </div>
+            <form id="schedule-form">
+                <label for="task">Schedule a Job</label>
+                <textarea id="task" name="task" rows="2" placeholder="Enter your task here" required></textarea>
+                <button type="submit">Submit Task</button>
+                <div id="schedule-result" class="result" style="display:none;"></div>
+            </form>
+            <form id="status-form">
+                <label for="job_id">Check Job Status</label>
+                <input type="text" id="job_id" name="job_id" placeholder="Enter job id" required />
+                <button type="submit">Check Status</button>
+                <div id="status-result" class="status-result" style="display:none;"></div>
+            </form>
         </div>
+        <script>
+            // Schedule form
+            document.getElementById('schedule-form').onsubmit = async function(e) {
+                e.preventDefault();
+                const task = document.getElementById('task').value;
+                const resultDiv = document.getElementById('schedule-result');
+                resultDiv.style.display = 'none';
+                resultDiv.innerText = '';
+                try {
+                    const res = await fetch('/schedule', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task })
+                    });
+                    const data = await res.json();
+                    resultDiv.innerText = 'Job ID: ' + data.job_id;
+                    resultDiv.style.display = 'block';
+                } catch (err) {
+                    resultDiv.innerText = 'Error: ' + err;
+                    resultDiv.style.display = 'block';
+                }
+            };
+            // Status form
+            document.getElementById('status-form').onsubmit = async function(e) {
+                e.preventDefault();
+                const job_id = document.getElementById('job_id').value;
+                const resultDiv = document.getElementById('status-result');
+                resultDiv.style.display = 'none';
+                resultDiv.innerText = '';
+                try {
+                    const res = await fetch('/status/' + encodeURIComponent(job_id));
+                    const data = await res.json();
+                    resultDiv.innerText = 'Status: ' + data.status + (data.output_link ? '\nOutput: ' + data.output_link : '');
+                    resultDiv.style.display = 'block';
+                } catch (err) {
+                    resultDiv.innerText = 'Error: ' + err;
+                    resultDiv.style.display = 'block';
+                }
+            };
+        </script>
     </body>
     </html>
     """
